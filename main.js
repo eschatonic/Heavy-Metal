@@ -3,7 +3,7 @@ var game = {
 	paused:false
 }
 var controls = {
-	mouseDown:false;
+	mouseDown:false,
 	up:false,
 	down:false,
 	left:false,
