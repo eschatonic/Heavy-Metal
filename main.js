@@ -5,7 +5,7 @@ var game = {
 	debug:true,
 	paused:true,
 	screen:null,
-	objects:[],
+	level:{},
 	controls:{
 		mouseDown:false,
 		up:false,
@@ -18,10 +18,152 @@ var game = {
 }
 
 //CONSTRUCTORS
-
 function Level(seed){
 	seed ? randomSeed(seed) : randomSeed(Math.random());
-	this.grid = [];
+	this.grid = [[]];
+	this.gridSize = 20;
+	this.defaultProps = {
+		fillMat:"earth",
+		mana:5
+	}
+	this.setGridProps = function(useDefault,x,y,material,manaLevel){
+		if (useDefault){
+			if (!this.grid[x]) this.grid[x] = [];
+			this.grid[x][y] = {
+				fillMat:this.defaultProps.fillMat,
+				mana:this.defaultProps.mana
+			}
+		} else {
+			if (!this.grid[x]) this.grid[x] = [];
+			this.grid[x][y] = {
+				fillMat:material,
+				mana:manaLevel
+			}
+		}
+		return this.grid[x][y];
+	}
+	this.getGridProps = function(x,y){
+		if (this.grid[x]){
+			if (this.grid[x][y]){
+				return this.grid[x][y];
+			} else {
+				this.setGridProps(true,x,y);
+				return this.grid[x][y];
+			}
+		} else {
+			this.setGridProps(true,x,y);
+			return this.grid[x][y];
+		}
+	}
+	this.initialise = function(){
+		//set centre square and four surrounding
+		this.setGridProps(false,0,0,"air",this.defaultProps.mana);
+		this.setGridProps(false,0,1,"air",this.defaultProps.mana);
+		this.setGridProps(false,1,0,"air",this.defaultProps.mana);
+		this.setGridProps(false,0,-1,"air",this.defaultProps.mana);
+		this.setGridProps(false,-1,0,"air",this.defaultProps.mana);
+		//setup for generation algorithm
+		var tunnels = [
+			//initial four tunnels
+			//format: current x, current y, facing x, facing y, length
+			[0,1,0,1,0],
+			[1,0,1,0,0],
+			[0,-1,0,-1,0],
+			[-1,0,-1,0,0]
+		];
+		//HIC SUNT DRACONES
+		while (tunnels.length > 0){
+			var maxLength = 100; //the maximum length of the tunnels (average will be much lower)
+			var eventualLength = random() * random() * maxLength;
+			for (var i= 0;i<tunnels.length;i++){
+				while (tunnels[i][4] < eventualLength){
+					//now see what the tunnel does next
+					var outcome = random() * 100;
+					if (outcome < 60){
+						//straight ahead
+						tunnels[i][0] += tunnels[i][2];
+						tunnels[i][1] += tunnels[i][3];
+					} else if (outcome < 75){
+						//turn left
+						if (tunnels[i][2] == 1){
+							tunnels[i][2] = 0;
+							tunnels[i][3] = -1;
+						} else if (tunnels[i][2] == -1){
+							tunnels[i][2] = 0;
+							tunnels[i][3] = 1;
+						} else if (tunnels[i][3] == 1){
+							tunnels[i][2] = 1;
+							tunnels[i][3] = 0;
+						} else {
+							tunnels[i][2] = -1;
+							tunnels[i][3] = 0;
+						}
+						tunnels[i][0] += tunnels[i][2];
+						tunnels[i][1] += tunnels[i][3];
+					} else if (outcome < 90){
+						//turn right
+						//turn left
+						if (tunnels[i][2] == 1){
+							tunnels[i][2] = 0;
+							tunnels[i][3] = 1;
+						} else if (tunnels[i][2] == -1){
+							tunnels[i][2] = 0;
+							tunnels[i][3] = -1;
+						} else if (tunnels[i][3] == 1){
+							tunnels[i][2] = -1;
+							tunnels[i][3] = 0;
+						} else {
+							tunnels[i][2] = 1;
+							tunnels[i][3] = 0;
+						}
+						tunnels[i][0] += tunnels[i][2];
+						tunnels[i][1] += tunnels[i][3];
+					} else {
+						//t-junction
+						//turns left, creates new tunnel turning right
+						//turn
+						if (tunnels[i][2] == 1){
+							tunnels[i][2] = 0;
+							tunnels[i][3] = -1;
+						} else if (tunnels[i][2] == -1){
+							tunnels[i][2] = 0;
+							tunnels[i][3] = 1;
+						} else if (tunnels[i][3] == 1){
+							tunnels[i][2] = 1;
+							tunnels[i][3] = 0;
+						} else {
+							tunnels[i][2] = -1;
+							tunnels[i][3] = 0;
+						}
+						tunnels[i][0] += tunnels[i][2];
+						tunnels[i][1] += tunnels[i][3];
+						//create new tunnel
+						var newX = tunnels[i][0] - (tunnels[i][2]);
+						var newY = tunnels[i][1] - (tunnels[i][3]);
+						var newFaceX = tunnels[i][2] * -1;
+						var newFaceY = tunnels[i][3] * -1;
+						tunnels.push([newX,newY,newFaceX,newFaceY,tunnels[i][4]]);
+					}
+					this.setGridProps(false,tunnels[i][0],tunnels[i][1],"air",this.defaultProps.mana);
+					tunnels[i][4] += 1;
+				}
+				//prune tunnel
+				tunnels.splice(i,1);
+			}
+		}
+	}
+	this.draw = function(){
+		for (var x in this.grid){
+			for (var y in this.grid[x]){
+				if (this.grid[x][y].fillMat != "earth"){
+					fill(255);
+				} else {
+					fill(0);
+				}
+				rect(x * this.gridSize + windowWidth/2,y * this.gridSize + windowHeight/2,this.gridSize,this.gridSize);
+			}
+		}
+	}
 }
 
 //INITIALISE
@@ -34,8 +176,10 @@ function setup(){
 	title();
 }
 
-function reset(){
+function reset(seed){
 	game.paused = false;
+	game.level = new Level(seed);
+	game.level.initialise();
 }
 
 //FUNCTIONS
@@ -58,7 +202,8 @@ function title(){
 }
 
 function drawBackground(){
-	background(0);
+	background(0); //clear
+	game.level.draw();
 }
 function drawInterface(){
 	if (game.debug) drawFPS();

@@ -22,4 +22,3 @@ Click/Touch Event Binding Code derived from:
     Copyright (c) 2013 Sudhanshu Yadav - ignitersworld.com,
 		released under the MIT license.
     Demo on: ignitersworld.com/lab/patternLock.html
-*/
