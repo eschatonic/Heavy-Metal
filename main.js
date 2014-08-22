@@ -3,6 +3,7 @@ var game = {
 	paused:false
 }
 var controls = {
+	mouseDown:false;
 	up:false,
 	down:false,
 	left:false,
@@ -27,6 +28,7 @@ function drawBackground(){
 
 //MAIN LOOP
 function draw(){
+	processInput();
 	if (!game.paused){
 		drawBackground();
 	} else {
@@ -34,11 +36,28 @@ function draw(){
 	}
 }
 
+/* UI FUNCTIONS */
+function mouseDown(x,y){
+}
+function mouseUp(x,y){
+}
+function processInput(){
+}
+
 /* BIND UI EVENTS */
 function BindUIEvents(){
-	document.getElementById("canvas").onclick = function(evt){
-		//do something
-		console.log(evt);
+	document.getElementById("canvas").onmousedown = function(evt){
+		controls.mouseDown = true;
+		mouseDown(evt.layerX,evt.layerY);
+	};
+	document.getElementById("canvas").onmousemove = function(evt){
+	};
+	document.getElementById("canvas").onmouseup = function(evt){
+		controls.mouseDown = false;
+		mouseUp(evt.layerX,evt.layerY);
+	};
+	document.getElementById("canvas").onmouseout = function(evt){
+		if (controls.mouseDown) controls.mouseDown = false;
 	};
 	document.onkeydown = function(e){
 		e.preventDefault();
