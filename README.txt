@@ -9,7 +9,7 @@
 */
 
 /*
-UI Event Binding Code derived from:
+Click/Touch Event Binding Code derived from:
     patternLock.js v 0.2.0
     Author: Sudhanshu Yadav
     Copyright (c) 2013 Sudhanshu Yadav - ignitersworld.com,

@@ -104,35 +104,20 @@ function BindUIEvents(){
         touchEnd = isTouchSupported ? "touchend" : "mouseup",
         touchMove = isTouchSupported ? "touchmove" : "mousemove";
 		
-	//interact start
-	document.getElementById("canvas").onmousedown = function(evt){
+	$('#canvas').on(touchStart,function(evt){
 		game.controls.mouseDown = true;
 		mouseDown(evt.layerX,evt.layerY);
-	};
-	document.getElementById("canvas").ontouchstart = function(evt){
-		game.controls.mouseDown = true;
-		mouseDown(evt.layerX,evt.layerY);
-	}
-	//interact drag
-	document.getElementById("canvas").onmousemove = function(evt){
+	});
+	$('#canvas').on(touchMove,function(evt){
 		mouseMove(evt.layerX,evt.layerY);
-	};
-	document.getElementById("canvas").ontouchmove = function(evt){
-		mouseMove(evt.layerX,evt.layerY);
-	}
-	//interact end
-	document.getElementById("canvas").onmouseup = function(evt){
+	});
+	$('#canvas').on(touchEnd,function(evt){
 		game.controls.mouseDown = false;
 		mouseUp(evt.layerX,evt.layerY);
-	};
-	document.getElementById("canvas").ontouchend = function(evt){
-		game.controls.mouseDown = false;
-		mouseUp(evt.layerX,evt.layerY);
-	};
-	//interact out
-	document.getElementById("canvas").onmouseout = function(evt){
+	});
+	$('.canvas').on("mouseout",function(evt){
 		if (game.controls.mouseDown) game.controls.mouseDown = false;
-	};
+	});
 	//keyboard
 	document.onkeydown = function(e){
 		e.preventDefault();
