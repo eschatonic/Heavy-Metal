@@ -4,7 +4,7 @@ var game = {
 	framerate:60,
 	debug:true,
 	paused:true,
-	screen:null,
+	state:null,
 	level:{},
 	controls:{
 		mouseDown:false,
@@ -178,6 +178,7 @@ function setup(){
 
 function reset(seed){
 	game.paused = false;
+	game.state = "prestart";
 	game.level = new Level(seed);
 	game.level.initialise();
 }
@@ -189,13 +190,14 @@ function title(){
 	stroke(255);
 	fill(255);
 	textAlign(CENTER);
-	textSize(48);
 	textFont("Georgia");
-	text("SPELLCASTING",windowWidth/2,windowHeight/2-50);
-	textSize(24);
-	text("by David Stark",windowWidth/2,windowHeight/2);
-	text("click or touch to begin", windowWidth/2,windowHeight/2+50);
+	textSize(22);
+	text("David Stark's",windowWidth/2,windowHeight/2-80);
+	textSize(72);
+	text("SPELLCASTING",windowWidth/2,windowHeight/2-5);
 	noStroke();
+	textSize(24);
+	text("click or touch to begin", windowWidth/2,windowHeight/2+70);
 	textAlign(RIGHT);
 	textSize(18);
 	text("version " + game.version,windowWidth-20,windowHeight-20);
@@ -233,7 +235,7 @@ function draw(){
 
 /* UI FUNCTIONS */
 function mouseDown(x,y){
-	if (game.screen == "title") reset();
+	if (game.state == "title") reset();
 }
 function mouseMove(x,y){
 }
