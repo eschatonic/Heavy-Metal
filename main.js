@@ -1,6 +1,10 @@
 //DECLARE VARIABLES
 var game = {
-	paused:false
+	paused:true,
+	screen:null,
+	objects:{
+		
+	}
 }
 var controls = {
 	mouseDown:false,
@@ -12,6 +16,13 @@ var controls = {
 	enter:false
 }
 
+//CONSTRUCTORS
+
+function Level(seed){
+	seed ? randomSeed(seed) : randomSeed(Math.random());
+	this.grid = [];
+}
+
 //INITIALISE
 function setup(){
 	frameRate(60);
@@ -19,9 +30,28 @@ function setup(){
 	var canvas = document.getElementsByTagName("canvas")[0];
 	canvas.id = "canvas";
 	BindUIEvents();
+	title();
+}
+
+function reset(){
+	game.paused = false;
 }
 
 //FUNCTIONS
+function title(){
+	game.screen = "title";
+	background(0);
+	stroke(255);
+	fill(255);
+	textAlign(CENTER);
+	textSize(48);
+	textFont("Georgia");
+	text("SPELLCASTING",windowWidth/2,windowHeight/2-50);
+	textSize(24);
+	text("by David Stark",windowWidth/2,windowHeight/2);
+	text("click or touch to begin", windowWidth/2,windowHeight/2+50);
+}
+
 function drawBackground(){
 	background(0);
 }
@@ -38,6 +68,7 @@ function draw(){
 
 /* UI FUNCTIONS */
 function mouseDown(x,y){
+	if (game.screen == "title") reset();
 }
 function mouseUp(x,y){
 }
