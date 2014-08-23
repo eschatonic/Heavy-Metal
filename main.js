@@ -19,7 +19,9 @@ var game = {
 
 //CONSTRUCTORS
 function Level(seed){
-	seed ? randomSeed(seed) : randomSeed(Math.random());
+	this.seed = seed;
+	if (!this.seed) this.seed = Math.round(Math.random() * 100000);
+	randomSeed(this.seed);
 	this.grid = [[]];
 	this.gridSize = 20;
 	this.defaultProps = {
@@ -73,8 +75,8 @@ function Level(seed){
 		];
 		//HIC SUNT DRACONES
 		while (tunnels.length > 0){
-			var maxLength = 100; //the maximum length of the tunnels (average will be much lower)
-			var eventualLength = random() * random() * maxLength;
+			var maxLength = 80; //the maximum length of the tunnels (average will be much lower)
+			var eventualLength = random() * random() * maxLength*4/5 + maxLength/5;
 			for (var i= 0;i<tunnels.length;i++){
 				while (tunnels[i][4] < eventualLength){
 					//now see what the tunnel does next
@@ -185,7 +187,7 @@ function reset(seed){
 
 //FUNCTIONS
 function title(){
-	game.screen = "title";
+	game.state = "title";
 	background(0);
 	stroke(255);
 	fill(255);
@@ -208,15 +210,24 @@ function drawBackground(){
 	game.level.draw();
 }
 function drawInterface(){
-	if (game.debug) drawFPS();
+	if (game.debug){
+		drawFPS();
+		drawSeed();
+	}
 }
 function drawFPS(){
 	noStroke();
 	fill(255);
 	textAlign(RIGHT);
 	textSize(18);
-	text(Math.round(frameRate()) + "fps",windowWidth-20,windowHeight-20);
-	
+	text(Math.round(frameRate()) + "fps",windowWidth-20,windowHeight-45);
+}
+function drawSeed(){
+	noStroke();
+	fill(255);
+	textAlign(RIGHT);
+	textSize(18);
+	text("seed: " + game.level.seed,windowWidth-20,windowHeight-20);
 }
 function drawSigilOverlay(){
 	
@@ -235,7 +246,10 @@ function draw(){
 
 /* UI FUNCTIONS */
 function mouseDown(x,y){
-	if (game.state == "title") reset();
+	if (game.state == "title"){
+		var seed = Math.round(Math.random() * 100000);
+		reset(seed);
+	}
 }
 function mouseMove(x,y){
 }
@@ -253,14 +267,14 @@ function BindUIEvents(){
 		
 	$('#canvas').on(touchStart,function(evt){
 		game.controls.mouseDown = true;
-		mouseDown(evt.layerX,evt.layerY);
+		mouseDown(evt.clientX,evt.clientY);
 	});
 	$('#canvas').on(touchMove,function(evt){
-		mouseMove(evt.layerX,evt.layerY);
+		mouseMove(evt.clientX,evt.clientY);
 	});
 	$('#canvas').on(touchEnd,function(evt){
 		game.controls.mouseDown = false;
-		mouseUp(evt.layerX,evt.layerY);
+		mouseUp(evt.clientX,evt.clientY);
 	});
 	$('.canvas').on("mouseout",function(evt){
 		if (game.controls.mouseDown) game.controls.mouseDown = false;
